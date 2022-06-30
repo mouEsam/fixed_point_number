@@ -6,12 +6,12 @@
 #if defined(__clang__) || defined(__GNUC__)
 typedef __int128_t int128_t;
 #else
-typedef int int128_t __attribute__((mode(TI)));
+typedef long long int128_t;
 #endif
 
 template<size_t size, size_t dp>
 class FixedPoint {
-
+  static_assert(size <= sizeof(int128_t) * 8 / 2);
   #pragma pack(push, 1)
   struct _Storage {
     int128_t d: size;

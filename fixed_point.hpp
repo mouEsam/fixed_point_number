@@ -11,13 +11,13 @@ typedef long long int128_t;
 
 template<size_t size, size_t dp>
 class FixedPoint {
-  static_assert(size <= sizeof(int128_t) * 8 / 2);
+  static_assert(size <= sizeof(int128_t) * 8);
   #pragma pack(push, 1)
   struct _Storage {
     int128_t d: size;
   };
   struct _ExtendedStorage {
-    int128_t d: size*2;
+    int128_t d: (size <= sizeof(int128_t) * 8 / 2) ? size*2 : size;
   };
   #pragma pack(pop)
 

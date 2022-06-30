@@ -1,4 +1,5 @@
 #include "fixed_point.hpp"
+#include <cstddef>
 #include <iostream>
 
 template<size_t dp>
@@ -11,17 +12,25 @@ constexpr double fixed_to_double(int32_t f) {
   return double(f) / double(1 << dp);
 }
 
-int main() {
-  using fp32_16 = FixedPoint<32, 16>;
-  constexpr fp32_16 a{3.5};
-  constexpr fp32_16 b{4.83};
+template<size_t size, size_t dp>
+void number() {
+  using fp_16 = FixedPoint<size, dp>;
+  constexpr fp_16 a{3.5};
+  constexpr fp_16 b{1.83};
   constexpr auto p = a + b;
   constexpr auto m = a * b;
   constexpr auto di = a / b;
   constexpr auto d1 = double(p);
   constexpr auto d2 = double(m);
   constexpr auto d3 = double(di);
-  std::cout << d1 << std::endl;
-  std::cout << d2 << std::endl;
-  std::cout << d3 << std::endl;
+  std::cout << d1 << " Size " << sizeof(p) << std::endl;
+  std::cout << d2 << " Size " << sizeof(m)  << std::endl;
+  std::cout << d3 << " Size " << sizeof(di)  << std::endl;
+}
+
+int main() {
+  number<8, 4>();
+  number<16, 8>();
+  number<32, 16>();
+  number<64, 32>();
 }

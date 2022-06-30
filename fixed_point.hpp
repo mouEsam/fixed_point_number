@@ -3,16 +3,18 @@
 #include <cstddef>
 #include <cstdint>
 
+typedef int int128_t __attribute__((mode(TI)));
+
 template<size_t size, size_t dp>
 class FixedPoint {
+
+  #pragma pack(push, 1)
   union _Types {
-    struct {
-      int64_t d1: size;
-    };
-    struct {
-      int64_t d2: size*2;
-    };
+    int128_t d1: size;
+    int128_t d2: size*2;
   };
+  #pragma pack(pop)
+
   _Types value{0};
   constexpr _Types _extended() const {
     _Types t;
@@ -22,10 +24,10 @@ class FixedPoint {
 public:
   constexpr FixedPoint() = default;
   constexpr FixedPoint(const double d) {
-    value.d1 = int64_t(d * double(1 << dp) + (d >= 0 ? 0.5 : -0.5));
+    value.d1 = int128_t(d * double(1LL << dp) + (d >= 0 ? 0.5 : -0.5));
   }
   constexpr operator double() const {
-    return double(value.d1) / double(1 << dp);
+    return double(value.d1) / double(1LL << dp);
   }
 private:
   static constexpr FixedPoint from(_Types v) { 
@@ -33,7 +35,7 @@ private:
     k.value = v; 
     return k; 
   }
-  static constexpr FixedPoint from(int64_t v) { 
+  static constexpr FixedPoint from(int128_t v) { 
     FixedPoint k; 
     k.value.d1 = v; 
     return k; 

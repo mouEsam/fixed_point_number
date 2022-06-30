@@ -21,5 +21,7 @@ int main() {
   constexpr auto d1 = double(p);
   constexpr auto d2 = double(m);
   constexpr auto d3 = double(di);
+  std::cout << d1 << std::endl;
+  std::cout << d2 << std::endl;
   std::cout << d3 << std::endl;
 }

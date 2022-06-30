@@ -15,9 +15,9 @@ int main() {
   using fp32_16 = FixedPoint<32, 16>;
   constexpr fp32_16 a{3.5};
   constexpr fp32_16 b{4.83};
-  constexpr fp32_16 p = a + b;
-  constexpr fp32_16 m = a * b;
-  constexpr fp32_16 di = a / b;
+  constexpr auto p = a + b;
+  constexpr auto m = a * b;
+  constexpr auto di = a / b;
   constexpr auto d1 = double(p);
   constexpr auto d2 = double(m);
   constexpr auto d3 = double(di);

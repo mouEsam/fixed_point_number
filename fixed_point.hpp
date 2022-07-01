@@ -12,6 +12,8 @@ typedef long long int128_t;
 template<size_t size, size_t dp>
 class FixedPoint {
   static_assert(size <= sizeof(int128_t) * 8);
+  static_assert(size > dp);
+  static inline const bool _IsValidExtended = size <= sizeof(int128_t) * 4;
   #pragma pack(push, 1)
   struct _Storage {
     int128_t d: size;
@@ -29,7 +31,7 @@ class FixedPoint {
   }
 public:
   constexpr FixedPoint() = default;
-  constexpr FixedPoint(const double d) {
+  constexpr FixedPoint(const double& d) {
       set(d);
   }
   constexpr operator double() const {
@@ -73,10 +75,21 @@ public:
     this->value.d -= f.value.d;
     return *this;
   }
+  FixedPoint operator * (const FixedPoint& f) const requires(!_IsValidExtended) {
+      auto t = _extended();
+      auto t2 = f._extended();
+      return from((t.d * t2.d) >> dp);
+  }
   constexpr FixedPoint operator * (const FixedPoint& f) const {
     auto t = _extended();
     auto t2 = f._extended();
     return from((t.d * t2.d) >> dp);
+  }
+  FixedPoint& operator *= (const FixedPoint& f) requires(!_IsValidExtended) {
+      auto t = _extended();
+      auto t2 = f._extended();
+      this->value.d = (t.d * t2.d) >> dp;
+      return *this;
   }
   constexpr FixedPoint& operator *= (const FixedPoint& f) {
     auto t = _extended();
@@ -84,27 +97,26 @@ public:
     this->value.d = (t.d * t2.d) >> dp;
     return *this;
   }
+  constexpr FixedPoint operator / (const FixedPoint& f) const requires(!_IsValidExtended) {
+      auto t = double(*this);
+      auto t2 = double(f);
+      return { t / t2 };
+  }
   constexpr FixedPoint operator / (const FixedPoint& f) const {
-      if constexpr (size >= sizeof(int128_t) * 8) {
-          auto t = double(*this);
-          auto t2 = double(f);
-          return { t / t2 };
-      } else {
-          auto t = _extended();
-          auto t2 = f._extended();
-          return from((t.d << dp) / t2.d);
-      }
+      auto t = _extended();
+      auto t2 = f._extended();
+      return from((t.d << dp) / t2.d);
+  }
+  constexpr FixedPoint& operator /= (const FixedPoint& f) requires(!_IsValidExtended) {
+      auto t = double(*this);
+      auto t2 = double(f);
+      *this = t / t2;
+      return *this;
   }
   constexpr FixedPoint& operator /= (const FixedPoint& f) {
-      if constexpr (size >= sizeof(int128_t) * 8) {
-          auto t = double(*this);
-          auto t2 = double(f);
-          *this = t / t2;
-      } else {
-          auto t = _extended();
-          auto t2 = f._extended();
-          this->value.d = (t.d << dp) / t2.d;
-      }
+      auto t = _extended();
+      auto t2 = f._extended();
+      this->value.d = (t.d << dp) / t2.d;
     return *this;
   }
 };

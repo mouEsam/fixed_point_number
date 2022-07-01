@@ -30,7 +30,7 @@ class FixedPoint {
 public:
   constexpr FixedPoint() = default;
   constexpr FixedPoint(const double d) {
-    value.d = int128_t(d * double(1LL << dp) + (d >= 0 ? 0.5 : -0.5));
+      set(d);
   }
   constexpr operator double() const {
     return double(value.d) / double(1LL << dp);
@@ -48,6 +48,14 @@ private:
   }
 public:
   constexpr FixedPoint& operator = (const FixedPoint& f) = default;
+  
+  constexpr FixedPoint& operator = (const double& d) {
+     this->set(d);
+     return *this;
+  }
+  constexpr void set(const double& d) {
+      this->value.d = int128_t(d * double(1LL << dp) + (d >= 0 ? 0.5 : -0.5));
+  }
   constexpr FixedPoint operator - () const {
     return from(-this->value.d);
   }
@@ -77,14 +85,26 @@ public:
     return *this;
   }
   constexpr FixedPoint operator / (const FixedPoint& f) const {
-    auto t = _extended();
-    auto t2 = f._extended();
-    return from((t.d << dp) / t2.d);
+      if constexpr (size >= sizeof(int128_t) * 8) {
+          auto t = double(*this);
+          auto t2 = double(f);
+          return { t / t2 };
+      } else {
+          auto t = _extended();
+          auto t2 = f._extended();
+          return from((t.d << dp) / t2.d);
+      }
   }
   constexpr FixedPoint& operator /= (const FixedPoint& f) {
-    auto t = _extended();
-    auto t2 = f._extended();
-    this->value.d = (t.d << dp) / t2.d;
+      if constexpr (size >= sizeof(int128_t) * 8) {
+          auto t = double(*this);
+          auto t2 = double(f);
+          *this = t / t2;
+      } else {
+          auto t = _extended();
+          auto t2 = f._extended();
+          this->value.d = (t.d << dp) / t2.d;
+      }
     return *this;
   }
 };

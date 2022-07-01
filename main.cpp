@@ -47,8 +47,8 @@ int main() {
   number<8, 4>();
   number<16, 8>();
   number<32, 16>();
-#ifndef _MSC_VER
   number<64, 32>();
+#ifndef _MSC_VER
   number<128, 32>();
 #endif
 }
